@@ -1,0 +1,69 @@
+                          TABLA I - ALGORITMO SIMULADOR S11 Y S21                          
++--------------------+--------------------------------------------------------------------+
+| Entrada            | canal c, con c en {1, 6, 11}                                       |
+|                    | archivo de mediciones del VNA (.s2p)                               |
++--------------------+--------------------------------------------------------------------+
+| Inicializar        | AnchoBanda = 22 MHz                                          |
+|                    | ganancia maxima S21max = 25 dB    // Datos extraidos del datasheet |
+|                    | piso de ganancia S21min = -20 dB  // Datos extraidos del datasheet |
+|                    | validacion ValidarDato = FALSO                                     |
+|                    | eje de frecuencia f = 2000 puntos entre 2300 y 2600 MHz            |
++--------------------+--------------------------------------------------------------------+
+| Iteracion          | Mientras ValidarDato = FALSO:                                      |
+|                    |     leer c                                                         |
+|                    |     Si c = 1, 6 u 11: ValidarDato = VERDADERO                      |
+|                    |     Si no: mostrar 'Ingrese un canal valido'                       |
++--------------------+--------------------------------------------------------------------+
+| Frecuencia central | Si c = 1  entonces FrecuenciaCentral = 2412 MHz                    |
+|                    | Si c = 6  entonces FrecuenciaCentral = 2437 MHz                    |
+|                    | Si c = 11 entonces FrecuenciaCentral = 2462 MHz                    |
++--------------------+--------------------------------------------------------------------+
+| Limites de banda   | limite inferior FrecInferior = FrecuenciaCentral - AnchoBanda/2    |
+|                    | limite superior FrecSuperior = FrecuenciaCentral + AnchoBanda/2    |
++--------------------+--------------------------------------------------------------------+
+| Calculo de         | Reflexion teorica S11 (gaussiana centrada en fc):                  |
+|  las curvas        |     S11(f) = -15 * exp( -(f - fc)^2 / (2 * (B/2)^2) )              |
+|                    |     S11(f) = min( S11(f), -1 )                                     |
+|                    | Ganancia teorica S21 :                      |
+|                    |     S21(f) = S21min + (S21max - S21min) / (1 + ((f - fc)/B)^8)     |
++--------------------+--------------------------------------------------------------------+
+| Graficar           | Crear ventana con dos subgraficas que comparten el eje f           |
+|                    | Subgrafica 1: trazar S11(f) y la linea de referencia en -10 dB     |
+|                    |     eje Y de -20 a 5 dB                                            |
+|                    | Subgrafica 2: trazar S21(f) y la linea de referencia en +25 dB     |
+|                    |     eje Y de -25 a 30 dB                                           |
+|                    | Eje X: Frecuencia (MHz); activar cuadricula y leyendas             |
++--------------------+--------------------------------------------------------------------+
+| Superponer datos   | Si existe el archivo del VNA:                                      |
+|                    |     (FrecReal, s11Real, s21Real) = LeerArchivos(archivo)           |  (ver Tabla II)
+|                    |     trazar s11Real vs FrecReal sobre la subgrafica 1               |
+|                    |     trazar s21Real vs FrecReal sobre la subgrafica 2               |
+|                    | Si no existe:                                                      |
+|                    |     mostrar aviso y presentar solo la simulacion teorica           |
++--------------------+--------------------------------------------------------------------+
+| Salida             | graficas de S11 y S21 (teoricas y, si existen, reales)             |
++--------------------+--------------------------------------------------------------------+
+ 
+ 
+                              TABLA II - FUNCION LeerArchivos                              
++--------------------+--------------------------------------------------------------------+
+| Entrada            | ruta del archivo .s2p                                              |
++--------------------+--------------------------------------------------------------------+
+| Inicializar        | FrecReal = lista vacia                                             |
+|                    | s11Real = lista vacia                                              |
+|                    | s21Real = lista vacia                                              |
++--------------------+--------------------------------------------------------------------+
+| Iteracion          | Abrir el archivo en modo lectura                                   |
+|                    | Para cada linea del archivo:                                       |
+|                    |     Si la linea inicia con '!' o '#' o esta vacia:                 |
+|                    |         omitir la linea (comentarios y encabezados)                |
+|                    |     Separar la linea en columnas                                   |
+|                    |     Si hay 9 columnas o mas:                                       |
+|                    |         FrecReal   <- columna 0   (MHz)                            |
+|                    |         s11Real    <- columna 1   (dB)                             |
+|                    |         s21Real    <- columna 3   (dB)                             |
+|                    | Cerrar el archivo                                                  |
++--------------------+--------------------------------------------------------------------+
+| Salida             | arreglos FrecReal, s11Real y s21Real                               |
++--------------------+--------------------------------------------------------------------+
+ 

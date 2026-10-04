@@ -1,0 +1,56 @@
+PSEUDOCODIGO - SIMULADOR DE ESPECTRO (POTENCIA vs FRECUENCIA)
+ 
+             TABLA I - ALGORITMO SIMULADOR DE ESPECTRO (POTENCIA vs FRECUENCIA)            
++--------------------+--------------------------------------------------------------------+
+| Entrada            | canal c, con c en {1, 6, 11}                                       |
+|                    | PotenciaSalida (dBm)                                               |
+|                    | Perdidas (dB) //perdidas de cables y conectores                    |
+|                    | archivo CSV con mediciones del analizador de espectro              |
++--------------------+--------------------------------------------------------------------+
+| Inicializar        | AnchoBanda = 22 MHz                                                |
+|                    | Ganancia = 2.15 dBi                                                |
+|                    | validacion ValidarDato = FALSO                                     |
+|                    | FrecEjeX = 2000 puntos entre 2100 y 3000 MHz  // eje de frecuencia |
++--------------------+--------------------------------------------------------------------+
+| Validar canal      | Mientras ValidarDato = FALSO:                                      |
+|                    |     leer c                                                         |
+|                    |     Si c = 1, 6 u 11: ValidarDato = VERDADERO                      |
+|                    |     Si no: mostrar 'Ingrese un canal valido'                       |
++--------------------+--------------------------------------------------------------------+
+| Frecuencia central | Si c = 1  entonces FrecuenciaCentral = 2412 MHz                    |
+|                    | Si c = 6  entonces FrecuenciaCentral = 2437 MHz                    |
+|                    | Si c = 11 entonces FrecuenciaCentral = 2462 MHz                    |
++--------------------+--------------------------------------------------------------------+
+| Presupuesto        | Potencia radiada (dBm):                                            |
+|                    |     PotenciaRadiada = PotenciaSalida + Ganancia - Perdidas         |
++--------------------+--------------------------------------------------------------------+
+| Limites de banda   | FrecInferior = FrecuenciaCentral - AnchoBanda/2                    |
+|                    | FrecSuperior = FrecuenciaCentral + AnchoBanda/2                    |
+|                    |                                                                    |
++--------------------+--------------------------------------------------------------------+
+| Calcular curva     | Radio del canal R = B/2                                            |
+|                    | Espectro teorico (cae 3 dB en el borde del canal):                 |
+|                    |     E(f) = PotenciaRadiada - 3 * ((f - fc) / R)^2                  |
+|                    |     E(f) = max( E(f), -80 )                                        |
+|                    | Ruido aleatorio normal, 2000 valores (media 0, desviacion 3):      |
+|                    |     RuidoAleatorio = Normal(0, 3)                                  |          
+|                    | Ruido total:                                                       |
+|                    |     RuidoGeneral  = -85 + RuidoAleatorio  // suma del ruido base   |
+|                    |                                      más la distribución           |                              
+|                    | Espectro final con ruido:                                          |
+|                    |     espectro_dBm = max( E(f) + 0.2 * n(f), N(f) )                  |
++--------------------+--------------------------------------------------------------------+
+| Datos reales       | Leer el CSV omitiendo las primeras 15 lineas, sin encabezado       |
+|                    |     FrecReal <- columna 0 / 1,000,000     (Hz a MHz)               |
+|                    |     PotenciaReal  <- columna 1                 (dBm)               |
++--------------------+--------------------------------------------------------------------+
+| Graficar           | Crear ventana de fondo oscuro                                      |
+|                    | Trazar espectro_dBm vs f                   (curva simulada)        |
+|                    | Trazar PotenciaReal vs FrecReal         (medicion real)            |
+|                    | Trazar lineas verticales en FrecInferior y FrecSuperior            |
+|                    | Trazar linea horizontal en PotenciaRadiada - 3     (corte -3 dB)   |
+|                    | Eje X: Frecuencia (MHz); eje Y: Potencia (dBm), de -90 a 30        |
+|                    | Activar cuadricula y leyenda                                       |
++--------------------+--------------------------------------------------------------------+
+| Salida             | grafica con la simulacion y la medicion real superpuestas          |
++--------------------+--------------------------------------------------------------------+
